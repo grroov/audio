@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#080a0a" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta
+      name="description"
+      content="A precise, installable signal generator with sine, square, and triangle oscillators."
+    />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>Audio — Signal Generator</title>
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="app-header">
+        <div class="wordmark" aria-label="Audio signal generator">
+          <span class="wordmark-mark" aria-hidden="true">
+            <i></i><i></i><i></i><i></i><i></i>
+          </span>
+          <span>AUDIO</span>
+        </div>
+
+        <div class="header-actions">
+          <button id="installButton" class="install-button" type="button">
+            <svg viewBox="0 0 20 20" aria-hidden="true">
+              <path d="M10 2v10m0 0 4-4m-4 4L6 8M3 15v2h14v-2" />
+            </svg>
+            <span>Install</span>
+          </button>
+
+          <button
+            id="powerButton"
+            class="power-button"
+            type="button"
+            aria-pressed="false"
+            aria-label="Start oscillator"
+          >
+            <span class="power-glyph" aria-hidden="true"></span>
+            <span id="powerLabel">Start</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="instrument">
+        <h1 class="visually-hidden">Audio signal generator</h1>
+
+        <section class="monitor" aria-label="Oscillator readout">
+          <div class="monitor-topline">
+            <span id="statusText" class="status-label"><i></i>Ready</span>
+            <span id="noteValue" class="note-value">A4</span>
+          </div>
+
+          <div class="monitor-main">
+            <svg class="scope" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="scopeFade" x1="0" x2="1">
+                  <stop offset="0" stop-color="#ff7043" stop-opacity="0" />
+                  <stop offset="0.14" stop-color="#ff7043" />
+                  <stop offset="0.86" stop-color="#ff7043" />
+                  <stop offset="1" stop-color="#ff7043" stop-opacity="0" />
+                </linearGradient>
+              </defs>
+              <path class="scope-grid" d="M0 24H240M60 0V48M120 0V48M180 0V48" />
+              <path id="scopePath" class="scope-line" pathLength="100" />
+            </svg>
+
+            <div class="frequency-readout">
+              <output id="frequencyValue" for="frequencySlider">440.0</output>
+              <span>Hz</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="wave-section" aria-labelledby="waveformLabel">
+          <div class="section-kicker" id="waveformLabel">Waveform</div>
+          <div class="wave-switch" role="radiogroup" aria-labelledby="waveformLabel">
+            <button
+              class="wave-option is-selected"
+              type="button"
+              role="radio"
+              aria-checked="true"
+              data-waveform="sine"
+            >
+              <svg viewBox="0 0 44 20" aria-hidden="true">
+                <path d="M1 10c5-12 9-12 14 0s9 12 14 0 9-12 14 0" />
+              </svg>
+              <span>Sine</span>
+            </button>
+            <button
+              class="wave-option"
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-waveform="square"
+            >
+              <svg viewBox="0 0 44 20" aria-hidden="true">
+                <path d="M1 17V3h14v14h14V3h14" />
+              </svg>
+              <span>Square</span>
+            </button>
+            <button
+              class="wave-option"
+              type="button"
+              role="radio"
+              aria-checked="false"
+              data-waveform="triangle"
+            >
+              <svg viewBox="0 0 44 20" aria-hidden="true">
+                <path d="m1 17 11-14 11 14L34 3l9 12" />
+              </svg>
+              <span>Triangle</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="frequency-stage" aria-labelledby="frequencyLabel">
+          <div class="section-kicker frequency-title" id="frequencyLabel">Frequency</div>
+
+          <div class="frequency-scale" aria-hidden="true">
+            <span>20k</span>
+            <span>5k</span>
+            <span>1k</span>
+            <span>200</span>
+            <span>20</span>
+          </div>
+
+          <div class="vertical-control">
+            <input
+              id="frequencySlider"
+              class="vertical-slider"
+              type="range"
+              min="0"
+              max="1000"
+              step="1"
+              value="447"
+              aria-label="Frequency"
+              aria-orientation="vertical"
+            />
+          </div>
+
+          <div class="polarity-control">
+            <span class="polarity-symbol" aria-hidden="true">Ø</span>
+            <button
+              id="invertButton"
+              class="toggle-button"
+              type="button"
+              role="switch"
+              aria-checked="false"
+            >
+              <span class="toggle-track" aria-hidden="true"><i></i></span>
+              <span id="invertState">Normal</span>
+            </button>
+            <span class="polarity-label">Polarity</span>
+          </div>
+        </section>
+
+        <section class="pan-control" aria-labelledby="panLabel">
+          <div class="pan-heading">
+            <span class="section-kicker" id="panLabel">Stereo position</span>
+            <output id="panValue" for="panSlider">Center</output>
+          </div>
+          <div class="pan-slider-row">
+            <span aria-hidden="true">L</span>
+            <input
+              id="panSlider"
+              class="pan-slider"
+              type="range"
+              min="-100"
+              max="100"
+              step="1"
+              value="0"
+              aria-label="Stereo position"
+            />
+            <span aria-hidden="true">R</span>
+          </div>
+        </section>
+
+        <p class="volume-note">Start low. Use device volume for level.</p>
+      </main>
+
+      <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
