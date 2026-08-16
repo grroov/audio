@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#080a0a" />
     <meta name="color-scheme" content="dark" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -13,7 +10,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta
       name="description"
-      content="A precise, installable signal generator with sine, square, and triangle oscillators."
+      content="An accessible, installable sine, square, and triangle signal generator with adjustable frequency spread."
     />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -22,68 +19,21 @@
   </head>
   <body>
     <div id="app" class="app-shell">
-      <header class="app-header">
-        <div class="wordmark" aria-label="Audio signal generator">
-          <span class="wordmark-mark" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i>
-          </span>
-          <span>AUDIO</span>
-        </div>
-
-        <div class="header-actions">
-          <button id="installButton" class="install-button" type="button">
-            <svg viewBox="0 0 20 20" aria-hidden="true">
-              <path d="M10 2v10m0 0 4-4m-4 4L6 8M3 15v2h14v-2" />
-            </svg>
-            <span>Install</span>
-          </button>
-
-          <button
-            id="powerButton"
-            class="power-button"
-            type="button"
-            aria-pressed="false"
-            aria-label="Start oscillator"
-          >
-            <span class="power-glyph" aria-hidden="true"></span>
-            <span id="powerLabel">Start</span>
-          </button>
-        </div>
-      </header>
-
       <main class="instrument">
         <h1 class="visually-hidden">Audio signal generator</h1>
 
-        <section class="monitor" aria-label="Oscillator readout">
-          <div class="monitor-topline">
-            <span id="statusText" class="status-label"><i></i>Ready</span>
-            <span id="noteValue" class="note-value">A4</span>
-          </div>
-
-          <div class="monitor-main">
-            <svg class="scope" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="scopeFade" x1="0" x2="1">
-                  <stop offset="0" stop-color="#ff7043" stop-opacity="0" />
-                  <stop offset="0.14" stop-color="#ff7043" />
-                  <stop offset="0.86" stop-color="#ff7043" />
-                  <stop offset="1" stop-color="#ff7043" stop-opacity="0" />
-                </linearGradient>
-              </defs>
-              <path class="scope-grid" d="M0 24H240M60 0V48M120 0V48M180 0V48" />
-              <path id="scopePath" class="scope-line" pathLength="100" />
-            </svg>
-
-            <div class="frequency-readout">
-              <output id="frequencyValue" for="frequencySlider">440.0</output>
-              <span>Hz</span>
-            </div>
-          </div>
+        <section class="wave-preview" aria-hidden="true">
+          <svg class="scope" viewBox="0 0 240 48" preserveAspectRatio="none" aria-hidden="true">
+            <g id="scopeBundle" class="scope-bundle">
+              <g id="scopeSpreadPaths" class="scope-spread-paths"></g>
+              <path id="scopeCutoutPath" class="scope-center-cutout" />
+              <path id="scopePath" class="scope-center-line" />
+            </g>
+          </svg>
         </section>
 
-        <section class="wave-section" aria-labelledby="waveformLabel">
-          <div class="section-kicker" id="waveformLabel">Waveform</div>
-          <div class="wave-switch" role="radiogroup" aria-labelledby="waveformLabel">
+        <section class="wave-section" aria-label="Wave shape">
+          <div class="wave-switch" role="radiogroup" aria-label="Wave shape">
             <button
               class="wave-option is-selected"
               type="button"
@@ -91,10 +41,7 @@
               aria-checked="true"
               data-waveform="sine"
             >
-              <svg viewBox="0 0 44 20" aria-hidden="true">
-                <path d="M1 10c5-12 9-12 14 0s9 12 14 0 9-12 14 0" />
-              </svg>
-              <span>Sine</span>
+              <span>SINE</span>
             </button>
             <button
               class="wave-option"
@@ -103,10 +50,7 @@
               aria-checked="false"
               data-waveform="square"
             >
-              <svg viewBox="0 0 44 20" aria-hidden="true">
-                <path d="M1 17V3h14v14h14V3h14" />
-              </svg>
-              <span>Square</span>
+              <span>SQUARE</span>
             </button>
             <button
               class="wave-option"
@@ -115,62 +59,144 @@
               aria-checked="false"
               data-waveform="triangle"
             >
-              <svg viewBox="0 0 44 20" aria-hidden="true">
-                <path d="m1 17 11-14 11 14L34 3l9 12" />
-              </svg>
-              <span>Triangle</span>
+              <span>TRIANGLE</span>
             </button>
           </div>
         </section>
 
-        <section class="frequency-stage" aria-labelledby="frequencyLabel">
-          <div class="section-kicker frequency-title" id="frequencyLabel">Frequency</div>
+        <section
+          class="frequency-stage"
+          aria-label="Frequency, tone power, waveform inversion, and frequency spread"
+        >
+          <span
+            id="statusText"
+            class="visually-hidden"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            Sound is off
+          </span>
 
-          <div class="frequency-scale" aria-hidden="true">
-            <span>20k</span>
-            <span>5k</span>
-            <span>1k</span>
-            <span>200</span>
-            <span>20</span>
+          <div class="parameter-editors">
+            <div class="parameter-editor frequency-editor">
+              <div class="parameter-entry">
+                <output id="frequencyValue" aria-label="Frequency, 440 hertz">440</output>
+                <span aria-hidden="true">Hz</span>
+              </div>
+            </div>
+
+            <div class="parameter-editor spread-editor">
+              <div class="parameter-entry">
+                <output
+                  id="spreadValue"
+                  aria-label="Frequency spread, 0 total semitones, single frequency"
+                >
+                  0
+                </output>
+                <span aria-hidden="true">SEMITONES</span>
+              </div>
+            </div>
           </div>
 
-          <div class="vertical-control">
-            <input
-              id="frequencySlider"
-              class="vertical-slider"
-              type="range"
-              min="0"
-              max="1000"
-              step="1"
-              value="447"
-              aria-label="Frequency"
-              aria-orientation="vertical"
-            />
-          </div>
+          <div class="frequency-stage-body">
+            <div class="frequency-slider-group">
+              <div class="vertical-scale" aria-hidden="true">
+                <span>20,000</span>
+                <span>1,000</span>
+                <span>20</span>
+              </div>
 
-          <div class="polarity-control">
-            <span class="polarity-symbol" aria-hidden="true">Ø</span>
-            <button
-              id="invertButton"
-              class="toggle-button"
-              type="button"
-              role="switch"
-              aria-checked="false"
-            >
-              <span class="toggle-track" aria-hidden="true"><i></i></span>
-              <span id="invertState">Normal</span>
-            </button>
-            <span class="polarity-label">Polarity</span>
+              <div class="vertical-control">
+                <input
+                  id="frequencySlider"
+                  class="vertical-slider"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  step="1"
+                  value="447"
+                  aria-label="Frequency"
+                  aria-orientation="vertical"
+                />
+              </div>
+            </div>
+
+            <div class="tone-controls">
+              <button
+                id="powerButton"
+                class="power-button"
+                type="button"
+                aria-pressed="false"
+                aria-label="Play tone"
+              >
+                <svg class="playback-icon" viewBox="0 0 32 32" aria-hidden="true">
+                  <path class="play-symbol" d="M8 4v24l20-12z" />
+                  <path class="pause-symbol" d="M7 4h7v24H7zm11 0h7v24h-7z" />
+                </svg>
+              </button>
+
+              <button
+                id="invertButton"
+                class="toggle-button"
+                type="button"
+                role="switch"
+                aria-checked="false"
+                aria-label="Invert waveform"
+              >
+                INVERT
+              </button>
+
+              <button
+                id="helpButton"
+                class="help-button"
+                type="button"
+                aria-label="Open help"
+                aria-haspopup="dialog"
+                aria-controls="helpModal"
+              >
+                <span aria-hidden="true">?</span>
+              </button>
+            </div>
+
+            <div class="spread-slider-group">
+              <div class="vertical-control">
+                <input
+                  id="spreadSlider"
+                  class="vertical-slider"
+                  type="range"
+                  min="0"
+                  max="48"
+                  step="1"
+                  value="0"
+                  aria-label="Frequency spread"
+                  aria-orientation="vertical"
+                />
+              </div>
+
+              <div class="vertical-scale" aria-hidden="true">
+                <span>48</span>
+                <span>24</span>
+                <span>0</span>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section class="pan-control" aria-labelledby="panLabel">
-          <div class="pan-heading">
-            <span class="section-kicker" id="panLabel">Stereo position</span>
-            <output id="panValue" for="panSlider">Center</output>
+        <section class="pan-control" aria-label="Stereo position">
+          <div class="pan-presets" role="group" aria-label="Stereo position presets">
+            <button type="button" data-pan-preset="-1" aria-pressed="false">
+              <span>LEFT</span>
+            </button>
+            <button type="button" data-pan-preset="0" aria-pressed="true">
+              <span>CENTER</span>
+            </button>
+            <button type="button" data-pan-preset="1" aria-pressed="false">
+              <span>RIGHT</span>
+            </button>
           </div>
+
           <div class="pan-slider-row">
-            <span aria-hidden="true">L</span>
             <input
               id="panSlider"
               class="pan-slider"
@@ -179,16 +205,229 @@
               max="100"
               step="1"
               value="0"
-              aria-label="Stereo position"
+              aria-label="Fine stereo position"
             />
-            <span aria-hidden="true">R</span>
           </div>
         </section>
-
-        <p class="volume-note">Start low. Use device volume for level.</p>
       </main>
 
-      <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+      <dialog id="helpModal" class="help-modal" aria-labelledby="helpTitle" aria-modal="true">
+        <header class="help-header">
+          <div>
+            <p class="help-kicker">Audio reference</p>
+            <h2 id="helpTitle">How this app produces sound</h2>
+          </div>
+          <button id="helpCloseButton" type="button" aria-label="Close help">CLOSE</button>
+        </header>
+
+        <article class="help-content">
+          <p class="help-introduction">
+            Audio synthesizes sound inside your browser. It does not use the microphone, play a
+            recording, or send your settings anywhere. Opening this Help page pauses a playing
+            tone. Close Help and press Play when you are ready to listen again.
+          </p>
+
+          <section aria-labelledby="frequencyHelpTitle">
+            <h3 id="frequencyHelpTitle">1. Frequency generation</h3>
+
+            <h4>Frequency and pitch</h4>
+            <p>
+              Frequency is the number of pressure-wave cycles produced each second. Its unit is
+              hertz, abbreviated Hz. A 440 Hz signal completes 440 cycles per second and is heard
+              near the musical pitch A above middle C. Increasing frequency generally raises
+              perceived pitch; decreasing it lowers perceived pitch.
+            </p>
+            <p>
+              The center-frequency slider covers 20 through 20,000 Hz. It is logarithmic rather
+              than linear: equal distances represent equal frequency ratios. This gives low and
+              middle frequencies useful control space while still reaching the upper end of the
+              nominal human hearing range. The number above the slider is the exact center
+              frequency used by the synthesizer.
+            </p>
+            <p class="help-equation">
+              Frequency = 20 × (20,000 ÷ 20)<sup>(slider position ÷ 1,000)</sup>
+            </p>
+            <p>
+              The slider has 1,001 internal positions from 0 through 1,000, and the mapped result is
+              rounded to a whole hertz for synthesis, display, and storage. Frequency controls the
+              repetition rate, not loudness. Very low settings may be perceived as pulses or
+              vibration, while high settings may be faint or inaudible. Hearing limits vary
+              substantially between people and commonly change with age.
+            </p>
+
+            <h4>Wave shape and harmonics</h4>
+            <p>
+              Every active voice uses the selected SINE, SQUARE, or TRIANGLE shape. The center
+              frequency is the fundamental frequency—the lowest repeating rate that defines the
+              pitch. The shape determines which additional harmonics accompany that fundamental.
+            </p>
+            <dl class="help-definitions">
+              <div>
+                <dt>SINE</dt>
+                <dd>
+                  A smooth oscillation containing only the fundamental in the ideal case. It has
+                  the least complex spectrum and usually sounds the softest or purest.
+                </dd>
+              </div>
+              <div>
+                <dt>SQUARE</dt>
+                <dd>
+                  Alternates between positive and negative levels. It contains strong odd-numbered
+                  harmonics at 3, 5, 7, and higher multiples of the fundamental, producing a bright,
+                  buzzy sound.
+                </dd>
+              </div>
+              <div>
+                <dt>TRIANGLE</dt>
+                <dd>
+                  Rises and falls in straight lines. It also contains odd-numbered harmonics, but
+                  their strength falls much faster than in a square wave, so it sounds smoother and
+                  less bright.
+                </dd>
+              </div>
+            </dl>
+
+            <h4>Starting, stopping, and routing</h4>
+            <p>
+              Sound begins only after Play is pressed. The browser then creates nine oscillator
+              voices, mixes the audible voices into one mono signal, applies inversion and stereo
+              position, and finally sends the result through a conservative master level to the
+              device output. Play and Pause use short gain ramps so the signal does not begin or end
+              with a sharp digital click. Leaving or hiding the app also stops playback.
+            </p>
+            <p>
+              INVERT multiplies the entire mixed signal by −1, exchanging every positive pressure
+              direction with a negative one. An isolated signal normally sounds unchanged after
+              inversion. The difference becomes important when it is combined with another related
+              signal because their waves can reinforce or cancel each other.
+            </p>
+            <p>
+              The bottom slider uses equal-power stereo panning. CENTER sends the mono mix to both
+              channels. LEFT and RIGHT move it to the corresponding channel, while intermediate
+              positions vary the balance smoothly. Panning occurs after all voices have been mixed,
+              so the entire generated sound moves together.
+            </p>
+
+            <h4>What the top graphic means</h4>
+            <p>
+              The bright center trace identifies the selected wave shape. It always shows four
+              convenient visual cycles; it is not an oscilloscope and does not display the literal
+              number of cycles occurring each second. It remains still while the tone plays. The
+              surrounding traces represent additional voices created by Spread. The dark cutout
+              around the center keeps the original shape readable when many traces overlap.
+            </p>
+          </section>
+
+          <section aria-labelledby="spreadHelpTitle">
+            <h3 id="spreadHelpTitle">2. Semitones and voices</h3>
+
+            <h4>What a semitone measures</h4>
+            <p>
+              A semitone is a frequency ratio, not a fixed number of hertz. In twelve-tone equal
+              temperament, one octave is divided into 12 equal ratio steps. Moving up one semitone
+              multiplies frequency by 2 raised to the power 1/12. After 12 upward steps the
+              frequency has doubled; after 12 downward steps it has been halved.
+            </p>
+            <p class="help-equation">
+              New frequency = starting frequency × 2<sup>(semitones ÷ 12)</sup>
+            </p>
+            <p>
+              Because this relationship is logarithmic, a semitone near 100 Hz covers fewer hertz
+              than a semitone near 1,000 Hz, even though both intervals sound like the same musical
+              step.
+            </p>
+
+            <h4>Spread is the complete width</h4>
+            <p>
+              The SEMITONES value is the total interval from the lowest outer voice to the highest
+              outer voice. The center frequency stays fixed in the middle. Half of the selected
+              interval extends below center and half extends above it.
+            </p>
+            <ul>
+              <li><strong>0 semitones:</strong> only the center voice is audible.</li>
+              <li>
+                <strong>12 semitones:</strong> a one-octave total span, extending 6 semitones below
+                and 6 above center.
+              </li>
+              <li>
+                <strong>24 semitones:</strong> a two-octave total span, extending one octave below
+                and one octave above center.
+              </li>
+              <li>
+                <strong>48 semitones:</strong> a four-octave total span, extending two octaves below
+                and two octaves above center.
+              </li>
+            </ul>
+
+            <h4>How the nine voices are placed</h4>
+            <p>
+              The synthesizer has one center voice and four matched pairs around it. Their normalized
+              positions across the total spread are −0.5, −0.375, −0.25, −0.125, 0, +0.125, +0.25,
+              +0.375, and +0.5. Position 0 is the center. Positions −0.5 and +0.5 are the two outer
+              limits.
+            </p>
+            <p class="help-equation">
+              Voice frequency = center frequency ×
+              2<sup>((spread semitones × voice position) ÷ 12)</sup>
+            </p>
+            <p>
+              With a 440 Hz center, 12 semitones of spread reaches approximately 311 to 622 Hz;
+              24 semitones reaches 220 to 880 Hz; and 48 semitones reaches 110 to 1,760 Hz. The
+              center voice remains exactly 440 Hz in every case.
+            </p>
+
+            <h4>Level, limits, and what you hear</h4>
+            <p>
+              At zero spread, the eight side voices are silent rather than being stacked on top of
+              the center voice. Their levels fade in during the first 12 semitones. The app then
+              normalizes all audible voice gains so their combined peak ceiling remains comparable
+              to the original single voice. Normalization limits peak level; it does not guarantee
+              that every setting will sound equally loud to human hearing.
+            </p>
+            <p>
+              Any calculated voice below 20 Hz or above 20,000 Hz is muted, and the remaining voices
+              are renormalized. This means a wide spread near either frequency boundary can become
+              asymmetrical even though the mathematical voice positions remain centered.
+            </p>
+            <p>
+              Spread creates nine discrete frequency lines, not a continuous band of noise. Nearby
+              voices can produce beating: their phases repeatedly reinforce and oppose one another,
+              causing slow changes in the combined waveform. SQUARE and TRIANGLE settings are even
+              richer because each voice contributes its own harmonic series in addition to the nine
+              fundamentals.
+            </p>
+            <p>
+              The faint traces in the top graphic use the same voice positions. They separate as
+              SEMITONES increases and disappear when the corresponding audio voice is outside the
+              supported frequency range. The graphic is an explanatory map; the numeric readouts are
+              the exact settings and the generated mix is more complex than any single drawn line.
+            </p>
+          </section>
+        </article>
+
+        <div id="helpScrollbar" class="help-scrollbar" aria-hidden="true">
+          <div id="helpScrollbarThumb" class="help-scrollbar-thumb"></div>
+        </div>
+      </dialog>
+
+      <div
+        id="notice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+      >
+        <p id="noticeText"></p>
+        <div class="notice-actions">
+          <button id="noticeInstallButton" class="notice-install" type="button" hidden>
+            Install
+          </button>
+          <button id="noticeCloseButton" type="button">Dismiss</button>
+        </div>
+      </div>
+
+      <div id="controlAnnouncement" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

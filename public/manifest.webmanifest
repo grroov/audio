@@ -2,7 +2,7 @@
   "id": "/",
   "name": "Audio — Signal Generator",
   "short_name": "Audio",
-  "description": "A precise sine, square, and triangle signal generator.",
+  "description": "A precise sine, square, and triangle signal generator with adjustable frequency spread.",
   "lang": "en-US",
   "start_url": "/",
   "scope": "/",
